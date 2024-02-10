@@ -15,3 +15,19 @@ services:
         restart: unless-stopped
         devices: 
             - /dev/vcio:/dev/vcio
+        depends_on:
+            - tailscale
+    tailscale:
+        image: tailscale/tailscale:latest
+        hostname: rpi
+        environment: 
+            - TS_AUTHKEY=${TS_OAUTH_KEY}
+            - TS_EXTRA_ARGS=--advertise-tags=tag:dev
+            - TS_STATE_DIR=/var/lib/tailscale
+        volumes:
+            - ${PWD}/tailscale/state:/var/lib/tailscale
+            - /dev/net/tun:/dev/net/tun
+        cap_add:
+            - net_admin
+            - sys_module
+        restart: unless-stopped
