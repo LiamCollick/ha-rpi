@@ -24,10 +24,13 @@ services:
             - TS_AUTHKEY=${TS_OAUTH_KEY}
             - TS_EXTRA_ARGS=--advertise-tags=tag:dev
             - TS_STATE_DIR=/var/lib/tailscale
+            - TS_USERSPACE=0
+            - TS_DEST_IP=192.168.0.40
         volumes:
             - ${PWD}/tailscale/state:/var/lib/tailscale
             - /dev/net/tun:/dev/net/tun
         cap_add:
             - net_admin
             - sys_module
+            - net_raw
         restart: unless-stopped
