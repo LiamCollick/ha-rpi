@@ -1,7 +1,10 @@
 version: '2.1'
+volumes:
+  data:
+    driver: local
 services:
     homeassistant:
-        image: lscr.io/linuxserver/homeassistant
+        image: lscr.io/linuxserver/homeassistant:latest
         container_name: homeassistant
         network_mode: host
         environment:
@@ -15,3 +18,32 @@ services:
         restart: unless-stopped
         devices: 
             - /dev/vcio:/dev/vcio
+        depends_on:
+            - tailscale
+    tailscale:
+        image: tailscale/tailscale:latest
+        hostname: rpi
+        environment: 
+            - TS_AUTHKEY=${TS_OAUTH_KEY}
+            - TS_EXTRA_ARGS=--advertise-tags=tag:dev
+            - TS_STATE_DIR=/var/lib/tailscale
+            - TS_USERSPACE=0
+            - TS_DEST_IP=192.168.0.40
+        volumes:
+            - ${PWD}/tailscale/state:/var/lib/tailscale
+            - /dev/net/tun:/dev/net/tun
+        cap_add:
+            - net_admin
+            - sys_module
+            - net_raw
+        restart: unless-stopped
+    node-red:
+        build: .
+        container_name: "node-red"
+        network_mode: host
+        environment:
+            TZ: Europe/Berlin
+        image: "nodered/node-red"
+        restart: unless-stopped
+        volumes:
+            - "data:/data"
