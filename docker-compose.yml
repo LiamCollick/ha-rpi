@@ -1,7 +1,10 @@
 version: '2.1'
+volumes:
+  data:
+    driver: local
 services:
     homeassistant:
-        image: lscr.io/linuxserver/homeassistant
+        image: lscr.io/linuxserver/homeassistant:latest
         container_name: homeassistant
         network_mode: host
         environment:
@@ -34,3 +37,13 @@ services:
             - sys_module
             - net_raw
         restart: unless-stopped
+    node-red:
+        build: .
+        container_name: "node-red"
+        network_mode: host
+        environment:
+            TZ: Europe/Berlin
+        image: "nodered/node-red"
+        restart: unless-stopped
+        volumes:
+            - "data:/data"
